@@ -1,0 +1,7 @@
+apiVersion: vickcontroller.wso2.com/v1alpha1
+kind: Cell
+metadata:
+  name: my-cell
+spec:
+  deploymentName: my-cell
+  replicas: 1
