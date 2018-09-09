@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/wso2/vick/pkg/client/clientset/versioned"
-	vickcontrollerv1alpha1 "github.com/wso2/vick/pkg/client/clientset/versioned/typed/vickcontroller/v1alpha1"
-	fakevickcontrollerv1alpha1 "github.com/wso2/vick/pkg/client/clientset/versioned/typed/vickcontroller/v1alpha1/fake"
+	vickv1alpha1 "github.com/wso2/vick/pkg/client/clientset/versioned/typed/vick/v1alpha1"
+	fakevickv1alpha1 "github.com/wso2/vick/pkg/client/clientset/versioned/typed/vick/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -71,12 +71,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// VickcontrollerV1alpha1 retrieves the VickcontrollerV1alpha1Client
-func (c *Clientset) VickcontrollerV1alpha1() vickcontrollerv1alpha1.VickcontrollerV1alpha1Interface {
-	return &fakevickcontrollerv1alpha1.FakeVickcontrollerV1alpha1{Fake: &c.Fake}
+// VickV1alpha1 retrieves the VickV1alpha1Client
+func (c *Clientset) VickV1alpha1() vickv1alpha1.VickV1alpha1Interface {
+	return &fakevickv1alpha1.FakeVickV1alpha1{Fake: &c.Fake}
 }
 
-// Vickcontroller retrieves the VickcontrollerV1alpha1Client
-func (c *Clientset) Vickcontroller() vickcontrollerv1alpha1.VickcontrollerV1alpha1Interface {
-	return &fakevickcontrollerv1alpha1.FakeVickcontrollerV1alpha1{Fake: &c.Fake}
+// Vick retrieves the VickV1alpha1Client
+func (c *Clientset) Vick() vickv1alpha1.VickV1alpha1Interface {
+	return &fakevickv1alpha1.FakeVickV1alpha1{Fake: &c.Fake}
 }

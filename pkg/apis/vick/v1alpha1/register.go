@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	
-	"github.com/wso2/vick/pkg/apis/vickcontroller"
+	"github.com/wso2/vick/pkg/apis/vick"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -45,8 +45,8 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&Cell{},
-		&CellList{},
+		&Service{},
+		&ServiceList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

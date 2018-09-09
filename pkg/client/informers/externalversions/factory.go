@@ -25,7 +25,7 @@ import (
 
 	versioned "github.com/wso2/vick/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/wso2/vick/pkg/client/informers/externalversions/internalinterfaces"
-	vickcontroller "github.com/wso2/vick/pkg/client/informers/externalversions/vickcontroller"
+	vick "github.com/wso2/vick/pkg/client/informers/externalversions/vick"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -172,9 +172,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Vickcontroller() vickcontroller.Interface
+	Vick() vick.Interface
 }
 
-func (f *sharedInformerFactory) Vickcontroller() vickcontroller.Interface {
-	return vickcontroller.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Vick() vick.Interface {
+	return vick.New(f, f.namespace, f.tweakListOptions)
 }

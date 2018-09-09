@@ -19,28 +19,28 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/wso2/vick/pkg/apis/vickcontroller/v1alpha1"
+	v1alpha1 "github.com/wso2/vick/pkg/apis/vick/v1alpha1"
 	"github.com/wso2/vick/pkg/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )
 
-type VickcontrollerV1alpha1Interface interface {
+type VickV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	CellsGetter
+	ServicesGetter
 }
 
-// VickcontrollerV1alpha1Client is used to interact with features provided by the vickcontroller group.
-type VickcontrollerV1alpha1Client struct {
+// VickV1alpha1Client is used to interact with features provided by the vick group.
+type VickV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *VickcontrollerV1alpha1Client) Cells(namespace string) CellInterface {
-	return newCells(c, namespace)
+func (c *VickV1alpha1Client) Services(namespace string) ServiceInterface {
+	return newServices(c, namespace)
 }
 
-// NewForConfig creates a new VickcontrollerV1alpha1Client for the given config.
-func NewForConfig(c *rest.Config) (*VickcontrollerV1alpha1Client, error) {
+// NewForConfig creates a new VickV1alpha1Client for the given config.
+func NewForConfig(c *rest.Config) (*VickV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -49,12 +49,12 @@ func NewForConfig(c *rest.Config) (*VickcontrollerV1alpha1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &VickcontrollerV1alpha1Client{client}, nil
+	return &VickV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new VickcontrollerV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new VickV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *VickcontrollerV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *VickV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -62,9 +62,9 @@ func NewForConfigOrDie(c *rest.Config) *VickcontrollerV1alpha1Client {
 	return client
 }
 
-// New creates a new VickcontrollerV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *VickcontrollerV1alpha1Client {
-	return &VickcontrollerV1alpha1Client{c}
+// New creates a new VickV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *VickV1alpha1Client {
+	return &VickV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -82,7 +82,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *VickcontrollerV1alpha1Client) RESTClient() rest.Interface {
+func (c *VickV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

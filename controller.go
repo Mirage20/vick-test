@@ -236,7 +236,9 @@ func (c *Controller) syncHandler(key string) error {
 	}
 	
 	// Get the Foo resource with this namespace/name
-	foo, err := c.cellsLister.Cells(namespace).Get(name)
+	cell, err := c.cellsLister.Cells(namespace).Get(name)
+	glog.Infof("Spec %+v\n", cell.Spec)
+	glog.Infof("Status %+v\n", cell.Status)
 	if err != nil {
 		// The Foo resource may no longer exist, in which case we stop
 		// processing.
@@ -248,7 +250,7 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 	
-	deploymentName := foo.Spec.DeploymentName
+	deploymentName := cell.Spec.DeploymentName
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
 		// resource otherwise. Instead, the next time the resource is updated
@@ -306,17 +308,17 @@ func (c *Controller) syncHandler(key string) error {
 }
 
 //func (c *Controller) updateFooStatus(foo *samplev1alpha1.Foo, deployment *appsv1.Deployment) error {
-	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use DeepCopy() to make a deep copy of original object and modify this copy
-	// Or create a copy manually for better performance
-	//fooCopy := foo.DeepCopy()
-	//fooCopy.Status.AvailableReplicas = deployment.Status.AvailableReplicas
-	// If the CustomResourceSubresources feature gate is not enabled,
-	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
-	// UpdateStatus will not allow changes to the Spec of the resource,
-	// which is ideal for ensuring nothing other than resource status has been updated.
-	//_, err := c.sampleclientset.SamplecontrollerV1alpha1().Foos(foo.Namespace).Update(fooCopy)
-	//return err
+// NEVER modify objects from the store. It's a read-only, local cache.
+// You can use DeepCopy() to make a deep copy of original object and modify this copy
+// Or create a copy manually for better performance
+//fooCopy := foo.DeepCopy()
+//fooCopy.Status.AvailableReplicas = deployment.Status.AvailableReplicas
+// If the CustomResourceSubresources feature gate is not enabled,
+// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
+// UpdateStatus will not allow changes to the Spec of the resource,
+// which is ideal for ensuring nothing other than resource status has been updated.
+//_, err := c.sampleclientset.SamplecontrollerV1alpha1().Foos(foo.Namespace).Update(fooCopy)
+//return err
 //}
 
 // enqueueFoo takes a Foo resource and converts it into a namespace/name

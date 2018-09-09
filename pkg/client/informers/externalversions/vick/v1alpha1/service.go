@@ -21,69 +21,69 @@ package v1alpha1
 import (
 	time "time"
 
-	vickcontrollerv1alpha1 "github.com/wso2/vick/pkg/apis/vickcontroller/v1alpha1"
+	vickv1alpha1 "github.com/wso2/vick/pkg/apis/vick/v1alpha1"
 	versioned "github.com/wso2/vick/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/wso2/vick/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/wso2/vick/pkg/client/listers/vickcontroller/v1alpha1"
+	v1alpha1 "github.com/wso2/vick/pkg/client/listers/vick/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// CellInformer provides access to a shared informer and lister for
-// Cells.
-type CellInformer interface {
+// ServiceInformer provides access to a shared informer and lister for
+// Services.
+type ServiceInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.CellLister
+	Lister() v1alpha1.ServiceLister
 }
 
-type cellInformer struct {
+type serviceInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewCellInformer constructs a new informer for Cell type.
+// NewServiceInformer constructs a new informer for Service type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewCellInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredCellInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewServiceInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredServiceInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredCellInformer constructs a new informer for Cell type.
+// NewFilteredServiceInformer constructs a new informer for Service type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredCellInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredServiceInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.VickcontrollerV1alpha1().Cells(namespace).List(options)
+				return client.VickV1alpha1().Services(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.VickcontrollerV1alpha1().Cells(namespace).Watch(options)
+				return client.VickV1alpha1().Services(namespace).Watch(options)
 			},
 		},
-		&vickcontrollerv1alpha1.Cell{},
+		&vickv1alpha1.Service{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *cellInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredCellInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *serviceInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredServiceInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *cellInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&vickcontrollerv1alpha1.Cell{}, f.defaultInformer)
+func (f *serviceInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&vickv1alpha1.Service{}, f.defaultInformer)
 }
 
-func (f *cellInformer) Lister() v1alpha1.CellLister {
-	return v1alpha1.NewCellLister(f.Informer().GetIndexer())
+func (f *serviceInformer) Lister() v1alpha1.ServiceLister {
+	return v1alpha1.NewServiceLister(f.Informer().GetIndexer())
 }

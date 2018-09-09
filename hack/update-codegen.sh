@@ -27,7 +27,7 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${SCRIPT_ROOT}; ls -d -1 ./vendor/k8s.io/code-ge
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
 ${CODEGEN_PKG}/generate-groups.sh "deepcopy,client,informer,lister" \
   github.com/wso2/vick/pkg/client github.com/wso2/vick/pkg/apis \
-  vickcontroller:v1alpha1 \
+  vick:v1alpha1 \
   --go-header-file ${SCRIPT_ROOT}/hack/boilerplate.go.txt
 #  --output-base "$(dirname ${BASH_SOURCE})/../../.." \
 

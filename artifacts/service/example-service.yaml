@@ -1,7 +1,7 @@
 apiVersion: vick.wso2.com/v1alpha1
-kind: Cell
+kind: Service
 metadata:
-  name: my-cell
+  name: my-service
 spec:
-  deploymentName: my-cell
+  deploymentName: my-service
   replicas: 1

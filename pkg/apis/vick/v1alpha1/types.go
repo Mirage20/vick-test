@@ -24,31 +24,33 @@ import (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // Foo is a specification for a Foo resource
-type Cell struct {
+type Service struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   CellSpec   `json:"spec"`
-	Status CellStatus `json:"status"`
+	Spec   ServiceSpec   `json:"spec"`
+	Status ServiceStatus `json:"status"`
 }
 
 // FooSpec is the spec for a Foo resource
-type CellSpec struct {
+type ServiceSpec struct {
 	DeploymentName string `json:"deploymentName"`
 	Replicas       *int32 `json:"replicas"`
 }
 
 // FooStatus is the status for a Foo resource
-type CellStatus struct {
+type ServiceStatus struct {
 	AvailableReplicas int32 `json:"availableReplicas"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // FooList is a list of Foo resources
-type CellList struct {
+type ServiceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []Cell `json:"items"`
+	Items []Service `json:"items"`
 }
+
+
