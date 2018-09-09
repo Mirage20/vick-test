@@ -99,3 +99,7 @@ and send a request
 NOTE: This will also delete all the services within that cell
 
     kubectl delete -f https://raw.githubusercontent.com/Mirage20/vick-test/master/artifacts/cell/example-cell.yaml
+
+### Uninstall VICK
+
+    kubectl delete -f https://raw.githubusercontent.com/Mirage20/vick-test/master/artifacts/vick.yaml
