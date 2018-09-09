@@ -3,5 +3,12 @@ kind: Cell
 metadata:
   name: my-cell
 spec:
-  deploymentName: my-cell
-  replicas: 1
+  # Currently not applied
+  gateway:
+    http:
+      port: 80
+      routes:
+      - match:
+        - uri: /foo
+        - uri: /bar
+        service: server-time-us
