@@ -34,8 +34,10 @@ type Service struct {
 
 // FooSpec is the spec for a Foo resource
 type ServiceSpec struct {
-	DeploymentName string `json:"deploymentName"`
-	Replicas       *int32 `json:"replicas"`
+	Replicas      *int32 `json:"replicas"`
+	Image         string `json:"image"`
+	ContainerPort int32 `json:"containerPort"`
+	ServicePort   int32 `json:"servicePort"`
 }
 
 // FooStatus is the status for a Foo resource
@@ -49,8 +51,5 @@ type ServiceStatus struct {
 type ServiceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
-
 	Items []Service `json:"items"`
 }
-
-

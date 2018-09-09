@@ -3,5 +3,7 @@ kind: Service
 metadata:
   name: my-service
 spec:
-  deploymentName: my-service
-  replicas: 1
+  replicas: 2
+  image: docker.io/mirage20/time-us
+  containerPort: 8080
+  servicePort: 80
