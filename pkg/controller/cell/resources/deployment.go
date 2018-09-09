@@ -13,14 +13,17 @@ import (
 )
 
 func CreateAppDeployment(service *v1alpha1.Service) *appsv1.Deployment {
+	labels := map[string]string{
+		"app":        "nginx",
+		"controller": service.Name,
+	}
 	podTemplateAnnotations := map[string]string{}
-	podTemplateAnnotations[istioSidecarInjectAnnotation] = "true"
+	podTemplateAnnotations["sidecar.istio.io/inject"] = "true"
 	//https://github.com/istio/istio/blob/master/install/kubernetes/helm/istio/templates/sidecar-injector-configmap.yaml
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      deploymentName(service),
+			Name:      service.Name,
 			Namespace: service.Namespace,
-			Labels:    createLabels(service),
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(service, schema.GroupVersionKind{
 					Group:   v1alpha1.SchemeGroupVersion.Group,
@@ -31,10 +34,12 @@ func CreateAppDeployment(service *v1alpha1.Service) *appsv1.Deployment {
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: service.Spec.Replicas,
-			Selector: createSelector(service),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      createLabels(service),
+					Labels:      labels,
 					Annotations: podTemplateAnnotations,
 				},
 				Spec: corev1.PodSpec{
@@ -42,7 +47,7 @@ func CreateAppDeployment(service *v1alpha1.Service) *appsv1.Deployment {
 						{
 							Name:  service.Name,
 							Image: service.Spec.Image,
-							Ports: []corev1.ContainerPort{{
+							Ports:[]corev1.ContainerPort{{
 								ContainerPort: service.Spec.ContainerPort,
 							}},
 						},

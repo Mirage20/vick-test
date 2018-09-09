@@ -27,12 +27,17 @@ import (
 
 type VickV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	CellsGetter
 	ServicesGetter
 }
 
 // VickV1alpha1Client is used to interact with features provided by the vick group.
 type VickV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *VickV1alpha1Client) Cells(namespace string) CellInterface {
+	return newCells(c, namespace)
 }
 
 func (c *VickV1alpha1Client) Services(namespace string) ServiceInterface {

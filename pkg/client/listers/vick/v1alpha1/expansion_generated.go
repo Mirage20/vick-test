@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// CellListerExpansion allows custom methods to be added to
+// CellLister.
+type CellListerExpansion interface{}
+
+// CellNamespaceListerExpansion allows custom methods to be added to
+// CellNamespaceLister.
+type CellNamespaceListerExpansion interface{}
+
 // ServiceListerExpansion allows custom methods to be added to
 // ServiceLister.
 type ServiceListerExpansion interface{}

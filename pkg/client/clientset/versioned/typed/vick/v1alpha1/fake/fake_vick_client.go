@@ -28,6 +28,10 @@ type FakeVickV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeVickV1alpha1) Cells(namespace string) v1alpha1.CellInterface {
+	return &FakeCells{c, namespace}
+}
+
 func (c *FakeVickV1alpha1) Services(namespace string) v1alpha1.ServiceInterface {
 	return &FakeServices{c, namespace}
 }

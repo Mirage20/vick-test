@@ -8,15 +8,18 @@ import (
 	"fmt"
 
 	"github.com/golang/glog"
+	"github.com/wso2/vick/pkg/apis/vick/v1alpha1"
+	vickclientset "github.com/wso2/vick/pkg/client/clientset/versioned"
 	"github.com/wso2/vick/pkg/controller"
 	"github.com/wso2/vick/pkg/controller/service/resources"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	appsv1informers "k8s.io/client-go/informers/apps/v1"
 	corev1informers "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
-
 	//corev1informers "k8s.io/client-go/informers/core/v1"
 	vickinformers "github.com/wso2/vick/pkg/client/informers/externalversions/vick/v1alpha1"
 	listers "github.com/wso2/vick/pkg/client/listers/vick/v1alpha1"
@@ -26,15 +29,21 @@ import (
 
 type serviceHandler struct {
 	serviceLister    listers.ServiceLister
+	cellLister       listers.CellLister
 	deploymentLister appsv1listers.DeploymentLister
 	k8sServiceLister corev1listers.ServiceLister
-	kubeclientset    kubernetes.Interface
+	kubeClient       kubernetes.Interface
+	vickClient       vickclientset.Interface
 }
 
-func NewController(kubeClient kubernetes.Interface, k8sServiceInformer corev1informers.ServiceInformer, serviceInformer vickinformers.ServiceInformer, deploymentInformer appsv1informers.DeploymentInformer) *controller.Controller {
+func NewController(kubeClient kubernetes.Interface, vickClient vickclientset.Interface, k8sServiceInformer corev1informers.ServiceInformer,
+	cellInformer vickinformers.CellInformer, serviceInformer vickinformers.ServiceInformer,
+	deploymentInformer appsv1informers.DeploymentInformer) *controller.Controller {
 	h := &serviceHandler{
-		kubeclientset:    kubeClient,
+		kubeClient:       kubeClient,
+		vickClient:       vickClient,
 		serviceLister:    serviceInformer.Lister(),
+		cellLister:       cellInformer.Lister(),
 		k8sServiceLister: k8sServiceInformer.Lister(),
 		deploymentLister: deploymentInformer.Lister(),
 	}
@@ -59,7 +68,7 @@ func (h *serviceHandler) Handle(key string) error {
 		glog.Errorf("invalid resource key: %s", key)
 		return nil
 	}
-	service, err := h.serviceLister.Services(namespace).Get(name)
+	serviceOriginal, err := h.serviceLister.Services(namespace).Get(name)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			runtime.HandleError(fmt.Errorf("service '%s' in work queue no longer exists", key))
@@ -67,18 +76,45 @@ func (h *serviceHandler) Handle(key string) error {
 		}
 		return err
 	}
-	glog.Infof("Found service %+v", service)
+	glog.Infof("Found service %+v", serviceOriginal)
+
+	ownerCellOriginal, err := h.cellLister.Cells(serviceOriginal.Namespace).Get(serviceOriginal.Spec.Cell)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			runtime.HandleError(fmt.Errorf("cell '%s' in work queue no longer exists", serviceOriginal.Spec.Cell))
+			return nil
+		}
+		return err
+	}
+	glog.Infof("Found cell %+v", ownerCellOriginal)
+
+	service := serviceOriginal.DeepCopy()
+
+	if !metav1.IsControlledBy(service, ownerCellOriginal) {
+		service.OwnerReferences = append(service.OwnerReferences,
+			*metav1.NewControllerRef(ownerCellOriginal, schema.GroupVersionKind{
+				Group:   v1alpha1.SchemeGroupVersion.Group,
+				Version: v1alpha1.SchemeGroupVersion.Version,
+				Kind:    "Cell",
+			}),
+		)
+	}
+
+	if _, err := h.vickClient.VickV1alpha1().Services(service.Namespace).Update(service); err != nil {
+		glog.Errorf("Error updating service %+v", service)
+		return err
+	}
 	// Get the deployment with the name specified in Foo.spec
 	deployment, err := h.deploymentLister.Deployments(service.Namespace).Get(service.Name)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
-		deployment, err = h.kubeclientset.AppsV1().Deployments(service.Namespace).Create(resources.CreateAppDeployment(service))
+		deployment, err = h.kubeClient.AppsV1().Deployments(service.Namespace).Create(resources.CreateAppDeployment(service))
 	}
 
 	k8sService, err := h.k8sServiceLister.Services(service.Namespace).Get(service.Name)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
-		k8sService, err = h.kubeclientset.CoreV1().Services(service.Namespace).Create(resources.CreateCoreService(service))
+		k8sService, err = h.kubeClient.CoreV1().Services(service.Namespace).Create(resources.CreateCoreService(service))
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can

@@ -21,12 +21,14 @@ type Handler interface {
 
 type Controller struct {
 	handler   Handler
+	name      string
 	workqueue workqueue.RateLimitingInterface
 }
 
 func New(h Handler, workQueueName string) *Controller {
 	return &Controller{
 		handler:   h,
+		name:      workQueueName,
 		workqueue: workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), workQueueName),
 	}
 }
@@ -35,7 +37,7 @@ func (c *Controller) Run(threadiness int, stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 	defer c.workqueue.ShutDown()
 
-	glog.Infof("Starting controller")
+	glog.Infof("Starting %s controller", c.name)
 
 	for i := 0; i < threadiness; i++ {
 		go wait.Until(c.runWorker, time.Second, stopCh)
@@ -43,7 +45,7 @@ func (c *Controller) Run(threadiness int, stopCh <-chan struct{}) {
 
 	// wait until we're told to stop
 	<-stopCh
-	glog.Infof("Shutting down the controller")
+	glog.Infof("Shutting down the %s controller", c.name)
 }
 
 func (c *Controller) Enqueue(obj interface{}) {

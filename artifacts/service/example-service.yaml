@@ -1,8 +1,9 @@
 apiVersion: vick.wso2.com/v1alpha1
 kind: Service
 metadata:
-  name: my-service
+  name: server-time-us
 spec:
+  cell: my-cell
   replicas: 2
   image: docker.io/mirage20/time-us
   containerPort: 8080

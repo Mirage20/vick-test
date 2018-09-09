@@ -11,6 +11,7 @@ import (
 	"github.com/golang/glog"
 	vickclientset "github.com/wso2/vick/pkg/client/clientset/versioned"
 	vickinformers "github.com/wso2/vick/pkg/client/informers/externalversions"
+	"github.com/wso2/vick/pkg/controller/cell"
 	"github.com/wso2/vick/pkg/controller/service"
 	"github.com/wso2/vick/pkg/signals"
 	kubeinformers "k8s.io/client-go/informers"
@@ -55,10 +56,11 @@ func main() {
 	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
 	k8sServiceInformer := kubeInformerFactory.Core().V1().Services()
 	serviceInformer := vickInformerFactory.Vick().V1alpha1().Services()
+	cellInformer := vickInformerFactory.Vick().V1alpha1().Cells()
 
 	// Create crd controllers
-	serviceController := service.NewController(kubeClient, k8sServiceInformer, serviceInformer, deploymentInformer)
-	//gatewayController := service.NewController(serviceInformer, deploymentInformer)
+	cellController := cell.NewController(kubeClient, cellInformer)
+	serviceController := service.NewController(kubeClient,vickClient, k8sServiceInformer, cellInformer, serviceInformer, deploymentInformer)
 
 	// Start informers
 	go kubeInformerFactory.Start(stopCh)
@@ -67,13 +69,16 @@ func main() {
 	// Wait for cache sync
 	glog.Info("Waiting for informer caches to sync")
 	if ok := cache.WaitForCacheSync(stopCh,
-		deploymentInformer.Informer().HasSynced, serviceInformer.Informer().HasSynced); !ok {
+		deploymentInformer.Informer().HasSynced,
+		k8sServiceInformer.Informer().HasSynced,
+		cellInformer.Informer().HasSynced,
+		serviceInformer.Informer().HasSynced); !ok {
 		glog.Fatal("failed to wait for caches to sync")
 	}
 
 	//Start controllers
+	go cellController.Run(threadsPerController, stopCh)
 	go serviceController.Run(threadsPerController, stopCh)
-	//go gatewayController.Run(threadsPerController, stopCh)
 	<-stopCh
 }
 

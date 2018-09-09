@@ -23,7 +23,6 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// Foo is a specification for a Foo resource
 type Service struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -34,10 +33,11 @@ type Service struct {
 
 // FooSpec is the spec for a Foo resource
 type ServiceSpec struct {
+	Cell          string `json:"cell"`
 	Replicas      *int32 `json:"replicas"`
 	Image         string `json:"image"`
-	ContainerPort int32 `json:"containerPort"`
-	ServicePort   int32 `json:"servicePort"`
+	ContainerPort int32  `json:"containerPort"`
+	ServicePort   int32  `json:"servicePort"`
 }
 
 // FooStatus is the status for a Foo resource
@@ -51,5 +51,5 @@ type ServiceStatus struct {
 type ServiceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
-	Items []Service `json:"items"`
+	Items           []Service `json:"items"`
 }
